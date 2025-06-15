@@ -61,7 +61,7 @@ export default function TransactionForm({ onAdd }) {
       <button type="submit" disabled={loading}>
         {loading ? 'Saving...' : 'Add Transaction'}
       </button>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {error && <p>{error}</p>}
     </form>
   )
 }

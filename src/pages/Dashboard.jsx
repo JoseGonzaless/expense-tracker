@@ -18,9 +18,8 @@ export default function Dashboard() {
   return (
     <div className="container">
       <h2>Welcome to your Dashboard!</h2>
+      <TransactionList refreshTrigger={refreshKey} onDelete={triggerRefresh}/>
       <TransactionForm onAdd={triggerRefresh} />
-      <hr />
-      <TransactionList refreshTrigger={refreshKey} />
       <button onClick={handleLogout}>Logout</button>
     </div>
   )
