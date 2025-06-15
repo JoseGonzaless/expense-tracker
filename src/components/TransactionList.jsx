@@ -5,6 +5,7 @@ import dayjs from 'dayjs'
 import isoWeek from 'dayjs/plugin/isoWeek'
 dayjs.extend(isoWeek)
 import SpendingChart from './SpendingChart'
+import { CATEGORIES } from '../lib/categories'
 
 export default function TransactionList({ refreshTrigger, onDelete }) {
   const { user } = useUser()
@@ -14,7 +15,7 @@ export default function TransactionList({ refreshTrigger, onDelete }) {
   const [error, setError] = useState(null)
   const [editId, setEditId] = useState(null)
   const [editValues, setEditValues] = useState({ label: '', amount: '', category: '', type: '' })
-
+  const [budgetLimits, setBudgetLimits] = useState({})
 
   // Filters
   const [selectedMonth, setSelectedMonth] = useState('')
@@ -59,7 +60,6 @@ export default function TransactionList({ refreshTrigger, onDelete }) {
         if (onDelete) onDelete()
     }
   }
-
 
   const handleDelete = async (id) => {
     const confirm = window.confirm('Are you sure you want to delete this transaction?')
@@ -109,6 +109,25 @@ export default function TransactionList({ refreshTrigger, onDelete }) {
     setFiltered(result)
   }, [transactions, selectedMonth, selectedWeek, selectedCategory])
 
+  useEffect(() => {
+    const fetchBudgets = async () => {
+      const { data, error } = await supabase
+        .from('budgets')
+        .select('*')
+        .eq('user_id', user.id)
+
+      if (!error && data) {
+        const mapped = {}
+        data.forEach((b) => {
+          mapped[b.category] = b.limit
+        })
+        setBudgetLimits(mapped)
+      }
+    }
+
+    if (user) fetchBudgets()
+  }, [user, refreshTrigger])
+
   if (loading) return <p>Loading transactions...</p>
   if (error) return <p>{error}</p>
 
@@ -136,10 +155,9 @@ export default function TransactionList({ refreshTrigger, onDelete }) {
 
         <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}>
           <option value="">All Categories</option>
-          <option value="Wants">Wants</option>
-          <option value="Meal Prep">Meal Prep</option>
-          <option value="Investment">Investment</option>
-          <option value="Income">Income</option>
+            {CATEGORIES.map((cat) => (
+              <option key={cat} value={cat}>{cat}</option>
+            ))}
         </select>
       </div>
 
@@ -158,8 +176,8 @@ export default function TransactionList({ refreshTrigger, onDelete }) {
 
         <h4>Budget Tracking</h4>
         <ul>
-          {['Wants', 'Meal Prep'].map((cat) => {
-            const limit = cat === 'Wants' ? 150 : cat === 'Meal Prep' ? 80 : null
+          {CATEGORIES.map((cat) => {
+            const limit = budgetLimits[cat] ?? null
             const spent = filtered
               .filter(tx => tx.category === cat && tx.type === 'expense')
               .reduce((sum, tx) => sum + Number(tx.amount), 0)

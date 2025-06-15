@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useUser } from '../hooks/useUser'
+import { CATEGORIES } from '../lib/categories'
 
 export default function TransactionForm({ onAdd }) {
   const { user } = useUser()
@@ -49,10 +50,9 @@ export default function TransactionForm({ onAdd }) {
       <input name="amount" type="number" placeholder="Amount" value={form.amount} onChange={handleChange} required />
       <select name="category" value={form.category} onChange={handleChange} required>
         <option value="">Select Category</option>
-        <option value="Wants">Wants</option>
-        <option value="Meal Prep">Meal Prep</option>
-        <option value="Investment">Investment</option>
-        <option value="Income">Income</option>
+        {CATEGORIES.map((cat) => (
+          <option key={cat} value={cat}>{cat}</option>
+        ))}
       </select>
       <select name="type" value={form.type} onChange={handleChange}>
         <option value="expense">Expense</option>
