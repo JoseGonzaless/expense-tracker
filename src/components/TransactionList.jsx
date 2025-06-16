@@ -3,7 +3,9 @@ import { supabase } from '../lib/supabase'
 import { useUser } from '../hooks/useUser'
 import dayjs from 'dayjs'
 import isoWeek from 'dayjs/plugin/isoWeek'
+import utc from 'dayjs/plugin/utc'
 dayjs.extend(isoWeek)
+dayjs.extend(utc)
 import SpendingChart from './SpendingChart'
 import { CATEGORIES } from '../lib/categories'
 
@@ -91,16 +93,18 @@ export default function TransactionList({ refreshTrigger, onDelete }) {
       })
     }
 
-    if (selectedWeek) {
-      const now = dayjs()
-      const currentWeek = now.isoWeek()
+    if (selectedWeek === 'this' || selectedWeek === 'last') {
+      const currentWeek = dayjs.utc().isoWeek()
+
       result = result.filter((tx) => {
-        const txWeek = dayjs(tx.date).isoWeek()
-        return selectedWeek === 'this'
+        const txWeek = dayjs.utc(tx.date).isoWeek()
+        const included = selectedWeek === 'this'
           ? txWeek === currentWeek
           : txWeek === currentWeek - 1
+        return included
       })
     }
+
 
     if (selectedCategory) {
       result = result.filter((tx) => tx.category === selectedCategory)
@@ -181,18 +185,33 @@ export default function TransactionList({ refreshTrigger, onDelete }) {
             const spent = filtered
               .filter(tx => tx.category === cat && tx.type === 'expense')
               .reduce((sum, tx) => sum + Number(tx.amount), 0)
+            const isOver = limit !== null && spent > limit
+
             return (
-              <li key={cat}>
+              <li key={cat} style={{ marginBottom: '10px' }}>
                 <strong>{cat}:</strong> ${spent.toFixed(2)}
-                {limit !== null && ` / $${limit.toFixed(2)} (${spent > limit ? 'Over' : 'Under'})`}
+                {limit !== null && (
+                  <>
+                    {' '} / ${limit.toFixed(2)}
+                    <progress
+                      value={Math.min(spent, limit)}
+                      max={limit}
+                      style={{ width: '200px', marginLeft: '10px', verticalAlign: 'middle' }}
+                    />
+                    <span style={{ marginLeft: '10px', color: isOver ? 'red' : 'green' }}>
+                      {isOver ? 'Over' : 'Under'}
+                    </span>
+                  </>
+                )}
               </li>
             )
           })}
         </ul>
+
       </div>
 
       {/* Chart */}
-      <SpendingChart data={filtered} />
+      <SpendingChart fullData={transactions} filteredData={filtered} />
 
       {/* Transactions */}
       {filtered.length === 0 ? (
@@ -217,10 +236,9 @@ export default function TransactionList({ refreshTrigger, onDelete }) {
                     value={editValues.category}
                     onChange={(e) => setEditValues({ ...editValues, category: e.target.value })}
                     >
-                    <option value="Wants">Wants</option>
-                    <option value="Meal Prep">Meal Prep</option>
-                    <option value="Investment">Investment</option>
-                    <option value="Income">Income</option>
+                      {CATEGORIES.map((cat) => (
+                        <option key={cat} value={cat}>{cat}</option>
+                      ))}
                     </select>
                     <select
                     value={editValues.type}

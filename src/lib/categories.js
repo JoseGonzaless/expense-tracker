@@ -1,6 +1,14 @@
 export const CATEGORIES = [
-  'Wants',
-  'Meal Prep',
-  'Investment',
-  'Income'
+  'Rent',
+  'Groceries',
+  'Utilities',
+  'Transportation',
+  'Dining',
+  'Shopping',
+  'Entertainment',
+  'Health',
+  'Insurance',
+  'Personal',
+  'Savings',
+  'Other'
 ]

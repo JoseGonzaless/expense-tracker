@@ -13,6 +13,7 @@ export default function TransactionForm({ onAdd }) {
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [recurring, setRecurring] = useState(false)
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -30,13 +31,15 @@ export default function TransactionForm({ onAdd }) {
       amount: parseFloat(form.amount),
       category: form.category,
       type: form.type,
-      date: new Date().toISOString().split('T')[0]
+      recurring,
+      date: new Date().toLocaleDateString('en-CA') // e.g., '2025-06-15'
     })
 
     if (error) {
       setError(error.message)
     } else {
       setForm({ label: '', amount: '', category: '', type: 'expense' })
+      setRecurring(false)
       if (onAdd) onAdd() // optional refresh trigger
     }
 
@@ -48,6 +51,14 @@ export default function TransactionForm({ onAdd }) {
       <h3>Add Transaction</h3>
       <input name="label" placeholder="Label" value={form.label} onChange={handleChange} required />
       <input name="amount" type="number" placeholder="Amount" value={form.amount} onChange={handleChange} required />
+      <label>
+        <input
+          type="checkbox"
+          checked={recurring}
+          onChange={(e) => setRecurring(e.target.checked)}
+        />
+        Recurring
+      </label>
       <select name="category" value={form.category} onChange={handleChange} required>
         <option value="">Select Category</option>
         {CATEGORIES.map((cat) => (
