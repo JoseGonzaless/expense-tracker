@@ -7,11 +7,6 @@ import BudgetForm from '../components/BudgetForm'
 export default function Dashboard() {
   const [refreshKey, setRefreshKey] = useState(0)
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut()
-    window.location.href = '/login'
-  }
-
   const triggerRefresh = () => {
     setRefreshKey((prev) => prev + 1)
   }
@@ -22,7 +17,6 @@ export default function Dashboard() {
       <BudgetForm onUpdate={triggerRefresh} />
       <TransactionList refreshTrigger={refreshKey} onDelete={triggerRefresh}/>
       <TransactionForm onAdd={triggerRefresh} />
-      <button onClick={handleLogout}>Logout</button>
     </div>
   )
 }
