@@ -1,5 +1,6 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import { supabase } from '../lib/supabase'; // ✅ make sure this import exists
 import '../styles/Layout.css';
 
 export default function Layout() {
@@ -14,7 +15,8 @@ export default function Layout() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  function handleLogout() {
+  async function handleLogout() {
+    await supabase.auth.signOut();
     localStorage.removeItem('authToken');
     navigate('/login');
   }
