@@ -47,7 +47,7 @@ export default function TransactionForm({ onAdd }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="container">
+    <form onSubmit={handleSubmit}>
       <h3>Add Transaction</h3>
       <input name="label" placeholder="Label" value={form.label} onChange={handleChange} required />
       <input name="amount" type="number" placeholder="Amount" value={form.amount} onChange={handleChange} required />

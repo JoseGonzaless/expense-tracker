@@ -1,7 +1,11 @@
+// TransactionCharts.jsx
+// Renders three spending visualizations: Pie (category), Bar (weekly), and Line (monthly).
+// Includes filter controls for pie and bar charts using the shared TransactionFilters component.
+
 import {
   PieChart, Pie, Cell, Tooltip, Legend,
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
-  ResponsiveContainer, Label, LineChart, Line
+  ResponsiveContainer, LineChart, Line
 } from 'recharts'
 
 import { useState } from 'react'
@@ -9,24 +13,43 @@ import dayjs from 'dayjs'
 import isoWeek from 'dayjs/plugin/isoWeek'
 dayjs.extend(isoWeek)
 
+import TransactionFilters from './TransactionFilters'
+
 const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff7f7f', '#00c49f']
 
-export default function SpendingChart({ fullData, filteredData }) {
+export default function TransactionCharts({ fullData }) {
+  // Filter state for charts
+  const [selectedMonthForPie, setSelectedMonthForPie] = useState('')
+  const [selectedWeekForPie, setSelectedWeekForPie] = useState('')
   const [selectedMonthForWeekly, setSelectedMonthForWeekly] = useState('')
 
-  const allExpenses = fullData.filter((tx) => tx.type === 'expense')
-  const filtExpenses = filteredData.filter((tx) => tx.type === 'expense')
+  // All expenses
+  const allExpenses = fullData.filter(tx => tx.type === 'expense')
 
-  // ----- Pie Chart Data -----
-  const grouped = filtExpenses.reduce((acc, tx) => {
+  // ---- Pie Chart Data (Filtered by month and/or week) ----
+  const pieFiltered = allExpenses.filter(tx => {
+    const matchesMonth = selectedMonthForPie
+      ? dayjs(tx.date).format('MMMM') === selectedMonthForPie
+      : true
+
+    const matchesWeek = selectedWeekForPie
+      ? (selectedWeekForPie === 'this'
+        ? dayjs(tx.date).isoWeek() === dayjs().isoWeek()
+        : dayjs(tx.date).isoWeek() === dayjs().subtract(1, 'week').isoWeek())
+      : true
+
+    return matchesMonth && matchesWeek
+  })
+
+  const grouped = pieFiltered.reduce((acc, tx) => {
     acc[tx.category] = (acc[tx.category] || 0) + Number(tx.amount)
     return acc
   }, {})
   const pieData = Object.entries(grouped).map(([name, value]) => ({ name, value }))
 
-  // ----- Bar Chart Data (Weekly Totals) -----
+  // ---- Bar Chart Data (Weekly Totals, optional month filter) ----
   const weeklyTotals = {}
-  allExpenses.forEach((tx) => {
+  allExpenses.forEach(tx => {
     const week = dayjs(tx.date).isoWeek()
     weeklyTotals[week] = (weeklyTotals[week] || 0) + Number(tx.amount)
   })
@@ -45,18 +68,26 @@ export default function SpendingChart({ fullData, filteredData }) {
     ? barData.filter(({ rawStart }) => rawStart.format('MMMM') === selectedMonthForWeekly)
     : barData
 
-  // ----- Line Chart Data (Monthly Totals) -----
+  // ---- Line Chart Data (Monthly Totals) ----
   const monthlyTotals = {}
-  allExpenses.forEach((tx) => {
+  allExpenses.forEach(tx => {
     const month = dayjs(tx.date).format('MMM')
     monthlyTotals[month] = (monthlyTotals[month] || 0) + Number(tx.amount)
   })
+
   const lineData = Object.entries(monthlyTotals).map(([month, amount]) => ({ month, amount }))
 
   return (
     <div>
       {/* Pie Chart */}
       <h4>Spending by Category</h4>
+      <TransactionFilters
+        selectedMonth={selectedMonthForPie}
+        setSelectedMonth={setSelectedMonthForPie}
+        selectedWeek={selectedWeekForPie}
+        setSelectedWeek={setSelectedWeekForPie}
+        showCategory={false}
+      />
       {pieData.length === 0 ? (
         <p>No expense data for chart.</p>
       ) : (
@@ -80,18 +111,17 @@ export default function SpendingChart({ fullData, filteredData }) {
 
       {/* Bar Chart */}
       <h4>Weekly Spending Trend</h4>
-      <div style={{ marginBottom: '8px' }}>
-        <label>Filter Weekly Chart by Month: </label>
-        <select value={selectedMonthForWeekly} onChange={(e) => setSelectedMonthForWeekly(e.target.value)}>
-          <option value="">All Months</option>
-          {[
-            'January', 'February', 'March', 'April', 'May', 'June',
-            'July', 'August', 'September', 'October', 'November', 'December'
-          ].map((month) => (
-            <option key={month} value={month}>{month}</option>
-          ))}
-        </select>
-      </div>
+      <TransactionFilters
+        selectedMonth={selectedMonthForWeekly}
+        setSelectedMonth={setSelectedMonthForWeekly}
+        selectedWeek=""
+        setSelectedWeek={() => {}}
+        selectedCategory=""
+        setSelectedCategory={() => {}}
+        showCategory={false}
+        showWeek={false}
+      />
+
       {filteredBarData.length === 0 ? (
         <p>No weekly data to display.</p>
       ) : (

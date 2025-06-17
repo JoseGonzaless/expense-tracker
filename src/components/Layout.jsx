@@ -70,7 +70,7 @@ export default function Layout() {
             <span>📈</span>
             <span>Reports</span>
           </NavLink>
-          <button onClick={handleLogout} className="danger" style={{ border: 'none', background: 'none', color: '#F87171' }}>
+          <button onClick={handleLogout} className="danger">
             <span>🚪</span>
             <span>Logout</span>
           </button>
