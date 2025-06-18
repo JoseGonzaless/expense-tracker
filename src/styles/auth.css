@@ -1,0 +1,113 @@
+/* ==================================
+   AUTH MODULE: Layout & Structure
+================================== */
+
+.auth-container {
+  max-width: 400px;
+  width: 100%;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: var(--color-surface);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Title */
+.auth-title {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: var(--color-primary);
+}
+
+/* Form Layout */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Labels (reuse font + color theme) */
+.auth-label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+  margin-top: 1rem;
+  color: #E5E7EB;
+}
+
+/* Inputs inherit global input styles */
+.auth-input {
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 0.5rem;
+}
+
+/* Submit Button (reuse global .primary) */
+.auth-button {
+  width: 100%;
+  margin-top: 1rem;
+}
+
+/* Error / Info Message */
+.auth-error {
+  margin-top: 1rem;
+  color: var(--color-error);
+  font-weight: 500;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+/* Password Strength Info Box */
+.password-requirements {
+  margin-top: 0.75rem;
+  background-color: #2c2c2c;
+  padding: 0.75rem;
+  border: 1px solid #4b5563; /* gray-600 */
+  border-radius: 6px;
+  font-size: 0.9rem;
+  color: #e2e8f0; /* light gray */
+}
+
+.password-requirements-title {
+  margin: 0 0 0.5rem 0;
+  font-weight: 600;
+}
+
+.password-requirements-list {
+  padding-left: 1.25rem;
+  margin: 0;
+}
+
+.password-requirements-list li {
+  margin-bottom: 0.25rem;
+  list-style-type: disc;
+}
+
+/* Toggle Mode Button */
+.auth-toggle {
+  background: none;
+  border: none;
+  color: var(--color-secondary);
+  margin-top: 1.5rem;
+  cursor: pointer;
+  font-size: 0.95rem;
+  display: block;
+  width: 100%;
+  text-align: center;
+}
+
+.auth-toggle:hover {
+  text-decoration: underline;
+}
+
+/* =====================
+   Responsive Adjustments
+===================== */
+@media (max-width: 480px) {
+  .auth-container {
+    padding: 1rem;
+  }
+
+  .auth-title {
+    font-size: 1.5rem;
+  }
+}
